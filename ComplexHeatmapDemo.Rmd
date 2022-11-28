@@ -1,0 +1,94 @@
+---
+title: "ComplexHeatmap"
+author: "Lev Saskov"
+date: "29/11/2022"
+output:
+md_document:
+variant: gfm
+---
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+#BiocManager::install("ComplexHeatmap")
+
+library(ComplexHeatmap)
+```
+
+# Chapter 1 Making a Simple Heatmap
+## Chpater 1.1 Creating the Dataset
+```{r}
+# Making the dataset 
+
+mat <- matrix(rnorm(18 * 24), nrow = 18, ncol = 24)
+
+#Something more specific
+set.seed(123)
+nr1 <- 4; nr2 <- 8; nr3 <- 6; nr <- nr1 + nr2 + nr3
+nc1 <- 6; nc2 <- 8; nc3 <- 10; nc <- nc1 + nc2 + nc3
+mat <- cbind(rbind(matrix(rnorm(nr1 * nc1, mean = 1, sd = 0.5), nr = nr1),
+                   matrix(rnorm(nr2 * nc1, mean = 0, sd = 0.5), nr = nr2),
+                   matrix(rnorm(nr3 * nc1, mean = 0, sd = 0.5), nr = nr3)),
+             rbind(matrix(rnorm(nr1 * nc2, mean = 0, sd = 0.5), nr = nr1),
+                   matrix(rnorm(nr2 * nc2, mean = 1, sd = 0.5), nr = nr2),
+                   matrix(rnorm(nr3 * nc2, mean = 0, sd = 0.5), nr = nr3)),
+             rbind(matrix(rnorm(nr1 * nc3, mean = 0.5, sd = 0.5), nr = nr1),
+                   matrix(rnorm(nr2 * nc3, mean = 0.5, sd = 0.5), nr = nr2),
+                   matrix(rnorm(nr3 * nc3, mean = 1, sd = 0.5), nr = nr3))
+)
+mat <- mat[sample(nr, nr), sample(nc, nc)] # random shuffle rows and
+rownames(mat) <- paste0("row", seq_len(nr))
+colnames(mat) <- paste0("column", seq_len(nc))
+
+View(mat)
+```
+
+
+```{r}
+se <- Heatmap(mat)
+draw(se)
+```
+## Chapter 1.2 Changing the Colours
+
+```{r}
+library(circlize)
+col_fun = colorRamp2(c(-2, 0, 2), c("green", "black", "red"))
+col_fun(seq(-3, 3))
+
+Heatmap(mat, name = "mat", col = col_fun)
+```
+
+
+```{r}
+mat2 = mat
+mat2[1, 1] = 100000
+Heatmap(mat2, name = "mat", col = col_fun,
+        column_title = "a matrix with outliers")
+```
+
+
+```{r}
+Heatmap(mat, name = "mat", col = col_fun, column_title = "mat")
+Heatmap(mat / 4, name = "mat", col = col_fun, column_title = "mat/4")
+Heatmap(abs(mat), name = "mat", col = col_fun, column_title = "abs(mat)")
+```
+
+
+```{r}
+Heatmap(mat, name = "mat", col = rev(rainbow(10)),
+        column_title = "set a color vector for a continuous matrix")
+
+```
+
+
+```{r}
+discrete_mat = matrix(sample(1:4, 100, replace = TRUE), 10, 10)
+colors = structure(1:4, names = c("1", "2", "3", "4")) # black, red, 
+
+Heatmap(discrete_mat)
+
+Heatmap(discrete_mat, name = "mat", col = colors,
+    column_title = "a discrete numeric matrix")
+
+```
+
